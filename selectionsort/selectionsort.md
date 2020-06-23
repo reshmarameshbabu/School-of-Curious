@@ -1,0 +1,300 @@
+# SORTING NUMBERS WITH SELECTION SORT USING HANDWRITTEN INPUT
+
+### **Concept:**
+- A list of numbers is written by hand and detected using CNN models
+- Selection sort algorithm sorts an array by repeatedly finding the minimum element (considering ascending order) from unsorted part and putting it at the beginning. The algorithm maintains two subarrays in a given array.
+    1) The subarray which is already sorted.
+    2) Remaining subarray which is unsorted.
+
+### **Required Packages:**
+```
+pip install opencv-python==3.4.1
+pip install tensorflow==1.13.1
+pip install Keras==2.0.6
+pip install python==3.6.5
+```
+### **Model:**
+- Model used for this code can be downloaded from the following link: <br>
+    https://gitlab.com/school-of-curious/reshma-ramesh-babu/blob/develope/selectionsort/model_mnist3.h5
+- Save it in the same folder as the python file and run the code
+
+### **Approach:**
+- Selection sort is an in-place comparison-based algorithm in which the list is divided into two parts, the sorted part at the left end and the unsorted part at the right end.
+- Initially, the sorted part is empty and the unsorted part is the entire list.
+- The smallest element is selected from the unsorted array and swapped with the leftmost element, and that element becomes a part of the sorted array. 
+- This process continues moving unsorted array boundary by one element to the right.
+
+### **Code:**
+- Create a new python file with the following code
+```python
+#importing libraries and dependencies
+import cv2
+import matplotlib.pyplot as plt
+import numpy as np
+from keras.models import Sequential
+from keras.layers import Convolution2D, MaxPooling2D
+from keras.layers import Flatten, Dense
+
+#creating the model
+def create_model():
+    model = Sequential()
+    model.add(Convolution2D(16, 5, 5, activation='relu', input_shape=(28,28, 3)))
+    model.add(MaxPooling2D(2, 2))
+
+    model.add(Convolution2D(32, 5, 5, activation='relu'))
+    model.add(MaxPooling2D(2, 2))
+
+    model.add(Flatten())
+    model.add(Dense(1000, activation='relu'))
+
+    model.add(Dense(11, activation='softmax'))
+    return model
+
+#loading model
+model = create_model()
+model.load_weights('/home/reshma/admatic/model_mnist3.h5')
+x = 100
+y = 100
+a = 100
+b = 80
+p = 300
+q = 175
+#definition of selection sort function
+def selectionSort(output,arr,count1):
+    global x,y,a,b,p,q
+    print(count1)
+    cv2.putText(output,"Selection sort",(200,100),cv2.FONT_HERSHEY_SIMPLEX,0.8,(0,255,0),2,cv2.LINE_AA)
+    cv2.putText(output,"Swapping minimum element",(625,y + 50),cv2.FONT_HERSHEY_SIMPLEX,0.8,(254,0,0),2,cv2.LINE_AA)
+    cv2.putText(output,"and current element",(625,y + 100),cv2.FONT_HERSHEY_SIMPLEX,0.8,(254,0,0),2,cv2.LINE_AA)
+    for i in range(0,len(arr)):
+        if count1 >= i:
+            output[np.where((output==[255,0,0]).all(axis=2))]=[0,0,0]
+            output[np.where((output==[255,0,255]).all(axis=2))]=[0,0,0]
+            output[np.where((output==[0,255,255]).all(axis=2))]=[0,0,0]
+            x = 100
+            y = y + 110
+            #printing every step
+            cv2.putText(output,"Step:"+str(i),(x,y),cv2.FONT_HERSHEY_SIMPLEX,0.8,(255,0,0),2,cv2.LINE_AA)
+            y = y + 30
+            for k in range(0,len(arr)):
+                if k==0:
+                    x+=120
+                    cv2.putText(output,str(arr[k]),(x,y),cv2.FONT_HERSHEY_SIMPLEX,0.8,(255,0,255),2,cv2.LINE_AA)
+                    
+                else:
+                    x+=80
+                    cv2.putText(output,str(arr[k]),(x,y),cv2.FONT_HERSHEY_SIMPLEX,0.8,(255,0,255),2,cv2.LINE_AA)
+                      
+            # Find the minimum element in remaining  
+            # unsorted array 
+            min_idx = i
+            for j in range(i+1, len(arr)): 
+                if arr[min_idx] > arr[j]: 
+                    min_idx = j 
+                        
+            # Swap the found minimum element with  
+            # the first element    
+            x = 100
+            y = y - 75
+            cv2.putText(output,"Swapping "+str(arr[i])+" and "+str(arr[min_idx]),(x,y + 150),cv2.FONT_HERSHEY_SIMPLEX,0.8,(0,255,255),2,cv2.LINE_AA)
+            cv2.putText(output,"Current element:"+str(arr[i])+" Minimum element:"+str(arr[min_idx]),(x + 300,y + 150),cv2.FONT_HERSHEY_SIMPLEX,0.8,(0,255,255),2,cv2.LINE_AA)
+            arr[i], arr[min_idx] = arr[min_idx], arr[i]   
+            y = y + 75
+            
+                        
+    x = 100
+    y = 950
+    cv2.putText(output,"Sorted array:",(x,y),cv2.FONT_HERSHEY_SIMPLEX,0.8,(255,0,255),2,cv2.LINE_AA)
+    for k in range(len(arr)):
+        if k==0:
+            x+=200
+            cv2.putText(output,str(arr[k]),(x,y),cv2.FONT_HERSHEY_SIMPLEX,0.8,(255,0,255),2,cv2.LINE_AA)
+        else:
+            x+=100
+            cv2.putText(output,str(arr[k]),(x,y),cv2.FONT_HERSHEY_SIMPLEX,0.8,(255,0,255),2,cv2.LINE_AA)
+    cv2.imshow('output',output)
+global ARR
+import operator
+cap = cv2.VideoCapture(1)
+st = ""
+count = 0
+count1 = 0
+
+while(True):
+    #reading frames from camera
+    ret, frame1 = cap.read()
+    output = np.zeros((1000,1000,3),np.uint8)
+    frame = frame1.copy()
+    frame_new= frame1.copy()
+    
+    th1 = 78
+    ret, img = cv2.threshold(frame, th1, 255, cv2.THRESH_BINARY_INV)
+    cvt = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    imagenew,contours, hierarchy = cv2.findContours(cvt,cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_SIMPLE)
+
+    thisdict = {}
+    #key press s for code generation
+    if cv2.waitKey(1) & 0xFF == ord('s'):
+        count += 1
+    
+    flag=0
+    noted_y=0
+    mylist = []
+    for c in contours:
+        (x, y, w, h)= cv2.boundingRect(c)
+        if (w>20) or (h>20):
+            mylist.append((x,y,w,h))
+    
+    th2 = 82 #change thresholding of every contour
+    for i in range(0, len(mylist)):
+        x = mylist[i][0]
+        y = mylist[i][1]
+        w = mylist[i][2]
+        h = mylist[i][3]
+        if h/w>3:
+            x=x-10
+            w=w+20
+        if w/h>3:
+            y=y-60
+            h=h+110
+        y=y-27
+        x=x-25
+        w=w+50
+        h=h+54
+        cv2.rectangle(frame1,(x,y),(x+w,y+h), (0,0, 255), 2)
+        img1 = frame_new[y:y+h, x:x+w]
+        ret, gray = cv2.threshold(img1,th2,255,cv2.THRESH_BINARY )
+        try:
+            im = cv2.resize(gray, (28,28))
+            #cv2.imshow('img',gray)
+
+            ar = np.array(im).reshape((28,28,3))
+            ar = np.expand_dims(ar, axis=0)
+            prediction = model.predict(ar)[0]
+            #prediction of class labels
+            for i in range(0,12):
+                if prediction[i]==1.0:
+                    if i==0:
+                        j= ","
+                    if i==1:
+                        j= "0"
+                    if i==2:
+                        j= "1"
+                    if i==3:
+                        j= "2"
+                    if i==4:
+                        j= "3"
+                    if i==5:
+                        j= "4"
+                    if i==6:
+                        j= "5"
+                    if i==7:
+                        j= "6"
+                    if i==8:
+                        j= "7"
+                    if i==9:
+                        j= "8"
+                    if i==10:
+                        j= "9"
+                     
+            #printing prediction
+                    cv2.putText(frame1, j, (x,y), cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 255, 0), 2, cv2.LINE_AA)
+                    thisdict[x]= str(j)
+        except:
+            d=0
+
+        sort = sorted(thisdict.items(), key=operator.itemgetter(0))
+        s = ""
+    for x in range(0,len(sort)):
+        s=s+str(sort[x][1])
+        cv2.putText(frame1, s, (100,80), cv2.FONT_HERSHEY_SIMPLEX, 2, (255, 0, 0), 2, cv2.LINE_AA)  
+    try:
+        #read string obtained as list
+        arr=list(s)
+        #commas split from list
+        arr = s.split(',')
+        #every step of selection sort printed on pressing key m
+        if cv2.waitKey(10) & 0xFF == ord('m'):
+            count1 = count1 + 1
+            selectionSort(output,arr,count1)
+        ARR=arr
+        s="".join(arr)
+        x=100
+        #printing sorted array in frame
+        cv2.putText(frame1,"Sorted array:",(x,350),cv2.FONT_HERSHEY_SIMPLEX,0.8,(255,0,255),2,cv2.LINE_AA)
+        for i in range(0,len(arr)):
+            if i==0:
+                x+=100
+                cv2.putText(frame1,str(arr[i]),(x,400),cv2.FONT_HERSHEY_SIMPLEX,0.8,(255,0,255),2,cv2.LINE_AA)
+            else:
+                x+=50
+                cv2.putText(frame1,str(arr[i]),(x,400),cv2.FONT_HERSHEY_SIMPLEX,0.8,(255,0,255),2,cv2.LINE_AA)
+        #printing sorted array in output frame
+        cv2.putText(output,"Sorted array:",(x,350),cv2.FONT_HERSHEY_SIMPLEX,0.8,(255,0,255),2,cv2.LINE_AA)
+        for i in range(0,len(arr)):
+            if i==0:
+                x+=100
+                cv2.putText(output,str(arr[i]),(x,400),cv2.FONT_HERSHEY_SIMPLEX,0.8,(255,0,255),2,cv2.LINE_AA)
+            else:
+                x+=50
+                cv2.putText(output,str(arr[i]),(x,400),cv2.FONT_HERSHEY_SIMPLEX,0.8,(255,0,255),2,cv2.LINE_AA)   
+    except:
+        pass
+        #to print basic code for selection sort in a new frame
+    if count >= 1:
+            frame5=np.zeros((900,600,3),np.uint8)
+            cv2.putText(frame5,"import sys ",(50,60),0,0.8,(10,100,255),2)
+            cv2.putText(frame5,"A"+str(arr),(50,100),0,0.8,(10,100,255),2)
+            cv2.putText(frame5,"for i in range(len(A)):",(50,140),0,0.8,(10,100,255),2)
+            cv2.putText(frame5,"    print(A)",(50,180),0,0.8,(10,100,255),2)
+            cv2.putText(frame5,"    min_idx = i",(50,220),0,0.8,(10,100,255),2)
+            cv2.putText(frame5,"    print('Step:',i)",(50,260),0,0.8,(10,100,255),2)
+            cv2.putText(frame5,"    for j in range(i+1, len(A)):",(50,300),0,0.8,(10,100,255),2)
+            cv2.putText(frame5,"        if A[min_idx] > A[j]:",(50,340),0,0.8,(10,100,255),2)
+            cv2.putText(frame5,"            min_idx = j",(50,380),0,0.8,(10,100,255),2)
+            cv2.putText(frame5,"    print('Swapping',A[i],' and ',A[min_idx])",(50,420),0,0.8,(10,100,255),2)
+            cv2.putText(frame5,"    A[i], A[min_idx] = A[min_idx], A[i]",(50,460),0,0.8,(10,100,255),2)
+            cv2.putText(frame5,"print ('Sorted array')",(50,500),0,0.8,(10,100,255),2)
+            cv2.putText(frame5,"print(A)",(50,540),0,0.8,(10,100,255),2)
+            cv2.imshow("Selection sort",frame5)       
+    cv2.imshow('frame1', img)
+    #cv2.imshow('fram', im)
+    cv2.imshow('frame', frame1)
+    if cv2.waitKey(1) & 0xFF == ord('q'):
+        break        
+cap.release()
+#code for code generation of selection sort
+f1 = open("selection_sort.py","w+")
+code='''
+import sys 
+A = '''+str(ARR)+'''
+  
+for i in range(len(A)): 
+    print(A) 
+    min_idx = i 
+    print("Step:",i)
+    for j in range(i+1, len(A)): 
+        if A[min_idx] > A[j]: 
+            min_idx = j 
+                       
+    print("Swapping ",A[i]," and ",A[min_idx])
+    A[i], A[min_idx] = A[min_idx], A[i] 
+
+# Driver code to test above 
+print ("Sorted array") 
+print(A)'''
+f1.write(code)
+f1.close()
+```
+- Run the following code
+```
+python3 selectionsorthw.py
+```
+### **Operation:**
+- Selection sort repeatedly finds minimum element from unsorted part and places it at the beginning. 
+- On running the above code, on pressing a, the elements are sorted in selection sort and displayed step by step
+- On pressing s, the basic code for selection sort is generated and displayed in a new frame
+
+### **Demo video link:**
+
+https://www.dropbox.com/s/982x7rbdr7fxbb0/selsort.mp4?dl=0
